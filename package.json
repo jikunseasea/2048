@@ -1,0 +1,24 @@
+{
+  "name": "2048",
+  "version": "0.1.0",
+  "dependencies": {
+    "jquery": "^3.2.1",
+    "normalize.css": "^7.0.0",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
+    "react-modal": "^3.1.11",
+    "rxjs": "^5.5.6",
+    "styled-components": "^2.4.0"
+  },
+  "devDependencies": {
+    "react-scripts": "1.0.17"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  },
+  "homepage": "http://jkest.github.io/2048",
+  "license": "MIT"
+}
