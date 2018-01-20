@@ -1,0 +1,4 @@
+{
+  "eslint.workingDirectories": ["./src"],
+  "eslint.options": {"config": "./eslintrc.js"}
+}
