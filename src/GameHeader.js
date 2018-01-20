@@ -24,8 +24,9 @@ class GameHeader extends Component {
     return (
       <Wrapper>
         <H1>2048</H1>
-        <Score score={this.props.score}/>
-        <Restart restartGame={restartGame}/>
+        {/* <Score score={this.props.score} /> */}
+        <Score />
+        <Restart restartGame={restartGame} />
       </Wrapper>
     );
   }

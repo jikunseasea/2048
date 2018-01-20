@@ -32,18 +32,11 @@ const moveAnimation = (fromX, fromY, toX, toY, browserWidth) => {
   // const { x: fromX, y: fromY } = src;
   const $cell = $(`.jquery-animate-move-${fromX}-${fromY}`);
   const { top: toTop, left: toLeft } = getPositionAndSize(toX, toY, browserWidth);
-  console.log(fromX, fromY, toX, toY)
-  console.log(toLeft)
 
   $cell.animate({
     top: `${toTop}rem`,
     left: `${toLeft}rem`
-  }, MOVE_DURATION
-  // , () => {
-  //   $cell.removeAttr('style')
-  // }
-);
-  
+  }, MOVE_DURATION);
 }
 
 const addScoreAnimation = scoreToBeAdded => {

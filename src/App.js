@@ -64,7 +64,7 @@ class App extends Component {
 
     this.state = {
       cells: [[]],
-      score: 0,
+      // score: 0,
       showModal: false,
       browserWidth: window.innerWidth
     }
@@ -140,9 +140,9 @@ class App extends Component {
         this.handleIsGameOver(value);
       });
     });
-    this.scoreSubscription = service.score$.subscribe(({ value, type }) => {
-      this.setState({ score: value });
-    });
+    // this.scoreSubscription = service.score$.subscribe(({ value, type }) => {
+    //   this.setState({ score: value });
+    // });
 
     document.addEventListener('keydown', this.handleKeyDown);
     window.addEventListener('resize', this.updateBrowserWidth);
@@ -151,7 +151,7 @@ class App extends Component {
   }
   componentWillUnmount() {
     this.cellsSubscription.unsubscribe();
-    this.scoreSubscription.unsubscribe();
+    // this.scoreSubscription.unsubscribe();
 
     document.removeEventListener('keydown', this.handleKeyDown);
     window.removeEventListener('resize', this.updateBrowserWidth);
@@ -204,7 +204,7 @@ class App extends Component {
         <Wrapper>
           <GameHeader
             restartGame={this.restartGame}
-            score={this.state.score}
+            // score={this.state.score}
           />
           <GameContainer
             cells={this.state.cells}

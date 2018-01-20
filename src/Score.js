@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 
 import styled from 'styled-components';
+import service from './service';
 
 const Wrapper = styled.div`
   background-color: ${props => props.theme.darkBg};
@@ -39,13 +40,30 @@ const AnimationAdd = styled.div`
 `;
 
 class Score extends Component {
+  constructor() {
+    super();
+    this.state = {
+      value: 0
+    };
+  }
+
+  componentDidMount() {
+    this.scoreSubscription = service.score$.subscribe(({ value }) => {
+      this.setState({ value });
+    });
+  }
+
+  componentWillUnmount() {
+    this.scoreSubscription.unsubscribe();
+  }
+
   render() {
-    const { score } = this.props;
+    const { value } = this.state;
     return (
       <Wrapper>
         <AnimationAdd  className="jquery-animate-score" />
         <Title>SCORE</Title>
-        <Main>{score}</Main>
+        <Main>{value}</Main>
       </Wrapper>
     );
   }

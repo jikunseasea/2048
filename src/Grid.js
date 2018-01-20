@@ -71,9 +71,6 @@ class Grid extends Component {
 
     // 生成了值
     const { val, bgColor, fgColor } = this.getEntityDetail(entity);
-    if (x === 2 && y === 0) {
-      console.log('render:' + left)
-    }
     return (
       <Div
         className={`jquery-animate-move-${x}-${y}`}
