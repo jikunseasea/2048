@@ -27,7 +27,8 @@ export class GameContainer extends Component {
     const { browserWidth } = this.props;
     return flattenCells(cells).map(cell => (
       <Grid
-        key={`${cell.x}-${cell.y}`}
+        // key={`${cell.x}-${cell.y}`}
+        key={Math.random()}
         x={cell.x}
         y={cell.y}
         entity={cell.entity}

@@ -12,7 +12,8 @@ import {
   BOX_OPTION,
   SCREEN_SIZE,
   GAME_SIZE,
-  INITIAL_SCORE
+  INITIAL_SCORE,
+  GAME_LEVELS
 } from './constant';
 import Entity from './Entity';
 import Cell from './Cell';
@@ -188,29 +189,13 @@ const canMoveByDirection = (
   return false;
 }
 
-const canMoveLeft = canMoveByDirection(
-  0, ROW_SIZE,
-  1, COL_SIZE,
-  -1, 0
-);
+const canMoveLeft = canMoveByDirection(0, ROW_SIZE, 1, COL_SIZE, -1, 0);
 
-const canMoveRight = canMoveByDirection(
-  0, ROW_SIZE,
-  0, COL_SIZE - 1,
-  1, 0
-);
+const canMoveRight = canMoveByDirection(0, ROW_SIZE, 0, COL_SIZE - 1, 1, 0);
 
-const canMoveUp = canMoveByDirection(
-  1, ROW_SIZE,
-  0, COL_SIZE,
-  0, -1
-);
+const canMoveUp = canMoveByDirection(1, ROW_SIZE, 0, COL_SIZE, 0, -1);
 
-const canMoveDown = canMoveByDirection(
-  0, ROW_SIZE - 1,
-  0, COL_SIZE,
-  0, 1
-);
+const canMoveDown = canMoveByDirection(0, ROW_SIZE - 1, 0, COL_SIZE, 0, 1);
 
 const canMove = cells => (
   canMoveLeft(cells)
@@ -220,8 +205,7 @@ const canMove = cells => (
 );
 
 const noBlockHorizontal = (rowIndex, x0, x1, cells) => {
-  const [fromX, toX] = x0 <= x1 ? [x0, x1] : [x1, x0];
-  for (let i = fromX + 1; i < toX; ++i) {
+  for (let i = x0 + 1; i < x1; ++i) {
     if (cells[rowIndex][i].entity.val !== 1) {
       return false;
     }
@@ -230,8 +214,7 @@ const noBlockHorizontal = (rowIndex, x0, x1, cells) => {
 };
 
 const noBlockVertical = (colIndex, y0, y1, cells) => {
-  const [fromY, toY] = y0 <= y1 ? [y0, y1] : [y1, y0];
-  for (let i = fromY + 1; i < toY; ++i) {
+  for (let i = y0 + 1; i < y1; ++i) {
     if (cells[i][colIndex].entity.val !== 1) {
       return false;
     }
@@ -239,11 +222,17 @@ const noBlockVertical = (colIndex, y0, y1, cells) => {
   return true;
 };
 
+const noBlockBetweenCells = cells => (ruler, from, to, cb) => {
+  const [start, end] = from <= to ? [from, to] : [to, from];
+  return cb(ruler, start, end, cells);
+};
+
 const noBlockBetween = (fromX, fromY, toX, toY, cells) => {
+  const verticalOrHorizontal = noBlockBetweenCells(cells);
   if (fromX === toX)
-    return noBlockVertical(fromX, fromY, toY, cells);
+    return verticalOrHorizontal(fromX, fromY, toY, noBlockVertical);
   else if (fromY === toY)
-    return noBlockHorizontal(fromY, fromX, toX, cells);
+    return verticalOrHorizontal(fromY, fromX, toX, noBlockHorizontal);
   
   throw new Error('FROM or TO either in the same col or row!');
 };
@@ -252,18 +241,36 @@ const makeSimpleMatrix = (row, col, value) => (
   Array.from({ length: row }).map(r => Array.from({ length: col }).fill(value))
 );
 
+const cloneCells = cells => (
+  Array
+    .from({ length: ROW_SIZE })
+    .map((_, i) => (
+      Array
+        .from({ length: COL_SIZE })
+        .map((_, j) => {
+          const des = new Cell(j, i);
+          const curId = Entity.getIdByVal(cells[i][j].entity.val);
+          Cell.setEntityById(des, curId);
+          des.entity.val = cells[i][j].entity.val;
+          return des;
+        })
+    ))
+);
+
+const getStepFromStartAndEnd = (start, end) => start > end ? -1 : 1;
+
 const movePromise = (
-  START_Y, END_Y, STEP_Y,
-  START_X, END_X, STEP_X,
-  START_K,
-  isMoveHorrizontal,
-  ...args
+  START_Y, END_Y,
+  START_X, END_X,
+  START_K, isMoveHorrizontal
 ) => (cells, browserWidth) => {
   const hasConflicted = makeSimpleMatrix(ROW_SIZE, COL_SIZE, false);
-  let result = [...cells];
+  const result = cloneCells(cells);
   const merged = [];
-  for (let i = START_Y; i !== END_Y; i += STEP_Y) {
-    for (let j = START_X; j !== END_X; j += STEP_X) {
+  const stepY = getStepFromStartAndEnd(START_Y, END_Y);
+  const stepX = getStepFromStartAndEnd(START_X, END_X);
+  for (let i = START_Y; i !== END_Y; i += stepY) {
+    for (let j = START_X; j !== END_X; j += stepX) {
       if (result[i][j].entity.val !== 1) {
         const [fromX, fromY] = [j, i];
         const endK = isMoveHorrizontal ? j : i;
@@ -276,7 +283,7 @@ const movePromise = (
             const des = result[toY][toX];
             // 如果当前位置没有数，则可以直接到达
             if (des.entity.val === 1) {
-              moveAnimation(src, toX, toY, browserWidth);
+              moveAnimation(fromX, fromY, toX, toY, browserWidth);
               // 覆盖掉当前位置的 cell 的 entity
               Object.assign(des, { entity: src.entity, x: toX, y: toY });
               // 在原有位置生成一个新的初始 cell
@@ -284,16 +291,23 @@ const movePromise = (
               break;
             }
             // 或者当前位置和 cells[i][j] 可以合并(值相等)
-            // else if (des.entity.val === src.entity.val && !hasConflicted[toY][toX]) {
-            else if (des.entity.val === src.entity.val) {
-              moveAnimation(src, toX, toY, browserWidth);
-              const curId = Entity.getIdByVal(src.entity.val);
-              // 当前位置上生成新的 cell
-              if (curId === -1) des.entity.val *= 2;
-              else Cell.setEntityById(des, curId + 1);
+            else if (des.entity.val === src.entity.val && !hasConflicted[toY][toX]) {
+              moveAnimation(fromX, fromY, toX, toY, browserWidth);
+              // 更新当前位置的 entityId 和 val
+              const curId = Entity.getIdByVal(des.entity.val);
+              if (curId < GAME_LEVELS - 1) {
+                Cell.setEntityById(des, curId + 1);
+              } else if (curId === GAME_LEVELS - 1) {
+                Cell.setEntityById(des, curId + 1);
+                des.entity.val = src.entity.val * 2;
+              } else {
+                des.entity.val *= 2;
+              }
               // 在原有位置生成一个新的初始 cell
               Cell.setEntityById(src, 0);
+              // 将当前位置加入 merged 数组
               merged.push({ x: toX, y: toY, value: des.entity.val });
+              // 标记为已经加过
               hasConflicted[toY][toX] = true;
               break;
             }
@@ -302,37 +316,16 @@ const movePromise = (
       }
     }
   }
-  return { moved: result, merged };
+  return { result, merged };
 };
 
-const moveLeftPromise = movePromise(
-  0, ROW_SIZE, 1,
-  1, COL_SIZE, 1,
-  0,
-  true,
-  'left'
-);
+const moveLeftPromise = movePromise(0, ROW_SIZE, 1, COL_SIZE, 0, true);
 
-const moveRightPromise = movePromise(
-  0, ROW_SIZE, 1,
-  COL_SIZE - 2, -1, -1,
-  COL_SIZE - 1,
-  true
-);
+const moveRightPromise = movePromise(0, ROW_SIZE, COL_SIZE - 2, -1, COL_SIZE - 1, true);
 
-const moveUpPromise = movePromise(
-  1, ROW_SIZE, 1,
-  0, COL_SIZE, 1,
-  0,
-  false
-);
+const moveUpPromise = movePromise(1, ROW_SIZE, 0, COL_SIZE, 0, false);
 
-const moveDownPromise = movePromise(
-  ROW_SIZE - 2, -1, -1,
-  0, COL_SIZE, 1,
-  ROW_SIZE - 1,
-  false
-);
+const moveDownPromise = movePromise(ROW_SIZE - 2, -1, 0, COL_SIZE, ROW_SIZE - 1, false);
 
 const canMoveByDirectionMap = {
   'left': canMoveLeft,

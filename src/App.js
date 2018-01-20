@@ -9,8 +9,7 @@ import { GAME_SIZE, SCREEN_SIZE, INITIAL_CELL, ACTION_TYPES } from './constant';
 import {
   isEmptyCells,
   canMoveByDirectionMap,
-  canMove,
-  initCells
+  canMove
 } from './util';
 
 import service from './service';
@@ -54,13 +53,6 @@ const keyDownMap = {
   39: 'right',
   40: 'down'
 };
-
-// const controller = {
-//   'left': [canMoveByDirectionMap['left'], service.move('left')],
-//   'up': [canMoveByDirectionMap['up'], service.move('up')],
-//   'right': [canMoveByDirectionMap['right'], service.move('right')],
-//   'down': [canMoveByDirectionMap['down'], service.move('down')],
-// };
 
 class App extends Component {
   constructor(props) {
@@ -139,10 +131,7 @@ class App extends Component {
 
   componentDidMount() {
     this.cellsSubscription = service.cells$.subscribe(({ value, type }) => {
-      console.log('set cells...');
-      
       this.setState({ cells: value }, () => {
-        // console.log(this.state.cells)
         this.generateCellIfNeeded(type);
         this.handleIsGameOver(value);
       });
@@ -153,8 +142,8 @@ class App extends Component {
 
     document.addEventListener('keydown', this.handleKeyDown);
     window.addEventListener('resize', this.updateBrowserWidth);
-    // document.addEventListener('touchstart', this.handleTouchStart);
-    // document.addEventListener('touchend', this.handleTouchEnd);
+    document.addEventListener('touchstart', this.handleTouchStart);
+    document.addEventListener('touchend', this.handleTouchEnd);
   }
   componentWillUnmount() {
     this.cellsSubscription.unsubscribe();
@@ -162,8 +151,8 @@ class App extends Component {
 
     document.removeEventListener('keydown', this.handleKeyDown);
     window.removeEventListener('resize', this.updateBrowserWidth);
-    // document.removeListener('touchstart', this.handleTouchStart);
-    // document.removeListener('touchend', this.handleTouchEnd);
+    document.removeListener('touchstart', this.handleTouchStart);
+    document.removeListener('touchend', this.handleTouchEnd);
   }
   
   componentDidUpdate() {
@@ -216,7 +205,7 @@ class App extends Component {
             cells={this.state.cells}
             browserWidth={this.state.browserWidth}
           />
-          {/* <ReactModal 
+          <ReactModal 
             isOpen={this.state.showModal}
             contentLabel="Minimal Modal Example"
             ariaHideApp={false}
@@ -236,10 +225,10 @@ class App extends Component {
                 fontSize: '3rem'
               }
             }}
-          > */}
-            {/* 游戏结束！
+          >
+            游戏结束！
             <Button onClick={this.restartAndHide}>重新玩</Button>
-          </ReactModal> */}
+          </ReactModal>
         </Wrapper>
       </ThemeProvider>
     );

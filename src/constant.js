@@ -18,7 +18,7 @@ export const SCREEN_SIZE = '600px';
 
 export const INITIAL_CELL = 2;
 
-export const SHOW_UP_DURATION =160;
+export const SHOW_UP_DURATION =50;
 
 export const MOVE_DURATION = 50;
 export const MOVE_THROTTLE_TIME = 150;
@@ -39,3 +39,6 @@ export const ACTION_TYPES = {
 export const INITIAL_SCORE = 0;
 
 export const STORAGE_NAME = 'jkest-2048';
+
+
+export const GAME_LEVELS = 12;

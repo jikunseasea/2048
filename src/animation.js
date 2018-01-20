@@ -1,7 +1,5 @@
 import $ from 'jquery';
 
-import Cell from './Cell';
-
 import {
   SHOW_UP_DURATION,
   MOVE_DURATION,
@@ -30,17 +28,22 @@ const showupAnimation = (cell, browserWidth) => {
   }, SHOW_UP_DURATION);
 }
 
-const moveAnimation = (src, toX, toY, browserWidth) => {
-  const { x: fromX, y: fromY } = src;
+const moveAnimation = (fromX, fromY, toX, toY, browserWidth) => {
+  // const { x: fromX, y: fromY } = src;
   const $cell = $(`.jquery-animate-move-${fromX}-${fromY}`);
   const { top: toTop, left: toLeft } = getPositionAndSize(toX, toY, browserWidth);
-  // const { top, left, width, height } = getPositionAndSize(fromX, fromY, browserWidth);
+  console.log(fromX, fromY, toX, toY)
+  console.log(toLeft)
+
   $cell.animate({
     top: `${toTop}rem`,
     left: `${toLeft}rem`
-  }, MOVE_DURATION, () => {
-    // Cell.setEntityById(src, 0);
-  });
+  }, MOVE_DURATION
+  // , () => {
+  //   $cell.removeAttr('style')
+  // }
+);
+  
 }
 
 const addScoreAnimation = scoreToBeAdded => {

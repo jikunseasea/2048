@@ -35,7 +35,6 @@ import {
   getInitialFromStorage,
 } from './util';
 
-
 const {
   RESET_CELLS,
   GENERATE_CELL,
@@ -43,7 +42,6 @@ const {
   ADD_SCORE,
   RESET_SCORE
 } = ACTION_TYPES;
-
 
 const { initialCells, initialScore } = getInitialFromStorage(STORAGE_NAME);
 
@@ -74,17 +72,17 @@ class Service {
     this.resetScore$ = new Subject();
 
     // 创建输出到 App 的流
-    this.cells$ = scanUpdate(this.updateCells$, initialCells).do(console.log);
-    this.score$ = scanUpdate(this.updateScore$, initialScore).delay(1000);
+    this.cells$ = scanUpdate(this.updateCells$, initialCells);
+    this.score$ = scanUpdate(this.updateScore$, initialScore);
 
     // 本地存储
-    // const local$ = Observable.combineLatest(this.cells$, this.score$, (cells, score) => ({
-    //   cells: cells.value,
-    //   score: score.value
-    // }));
-    // local$.subscribe(store => {
-    //   // localStorage.setItem(STORAGE_NAME, JSON.stringify(store));
-    // });
+    const local$ = Observable.combineLatest(this.cells$, this.score$, (cells, score) => ({
+      cells: cells.value,
+      score: score.value
+    }));
+    local$.subscribe(store => {
+      // localStorage.setItem(STORAGE_NAME, JSON.stringify(store));
+    });
 
 
     this.resetCells$
@@ -101,6 +99,7 @@ class Service {
       .map(({ cells, cellCount,browserWidth }) => (
         generateCellPromise(cells, cellCount, browserWidth)
       ))
+      // .map(() => ([new Cell(0,0,1), new Cell(2,0,2)]))
       .delay(SHOW_UP_DURATION)
       .map(generated => generateCellResolve(generated))
       .subscribe(operation => {
@@ -113,20 +112,18 @@ class Service {
     // 移动之后会有多个操作
     const movePromise$ = this.moveCell$
       .throttleTime(MOVE_THROTTLE_TIME)
-      .map(({ direction, cells, browserWidth }) => {
-      return (
+      .map(({ direction, cells, browserWidth }) => (
         movePromiseByDirectionMap[direction](cells, browserWidth)
-      )
-    })
+      ))
       .delay(MOVE_DURATION)
       .publishReplay(1)
       .refCount();
 
     // 移动之后更新 cells
     movePromise$
-      .subscribe(({ moved }) => {
+      .subscribe(({ result }) => {
         this.updateCells$.next({
-          operation: () => moved,
+          operation: () => result,
           type: MOVE_CELL
         });
       });

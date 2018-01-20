@@ -1,3 +1,7 @@
+import {
+  GAME_LEVELS
+} from './constant';
+
 const PRE_ENTITIES = [
   { val: 1, fgColor: null, bgColor: null},
   { val: 2, fgColor: '#0099BC', bgColor: '#f1c40f'},
@@ -11,15 +15,19 @@ const PRE_ENTITIES = [
   { val: 512, fgColor: '#55acee', bgColor: '#1abc9c'},
   { val: 1024, fgColor: '#00AFF0', bgColor: '#16a085'},
   { val: 2048, fgColor: '#1ab7ea', bgColor: '#c0392b'},
-  { val: 'success', fgColor: 'white', bgColor: 'black'},
 ];
 
 class Entity {
   constructor(id = 0, val) {
-    if (id > PRE_ENTITIES.length - 1) {
-      this.val = val ? val : PRE_ENTITIES[PRE_ENTITIES.length - 1].val;
-      this.fgColor = PRE_ENTITIES[PRE_ENTITIES.length - 1].fgColor;
-      this.bgColor = PRE_ENTITIES[PRE_ENTITIES.length - 1].bgColor;
+    // if (id > PRE_ENTITIES.length - 1) {
+    //   this.val = val ? val : PRE_ENTITIES[PRE_ENTITIES.length - 1].val;
+    //   this.fgColor = PRE_ENTITIES[PRE_ENTITIES.length - 1].fgColor;
+    //   this.bgColor = PRE_ENTITIES[PRE_ENTITIES.length - 1].bgColor;
+    // } else
+    if (id >= GAME_LEVELS) {
+      this.val = '';
+      this.fgColor = PRE_ENTITIES[GAME_LEVELS].fgColor;
+      this.bgColor = PRE_ENTITIES[GAME_LEVELS].bgColor;
     } else {
       this.val = PRE_ENTITIES[id].val;
       this.fgColor = PRE_ENTITIES[id].fgColor;
@@ -36,7 +44,12 @@ class Entity {
   }
 
   static getIdByVal(val) {
-    return PRE_ENTITIES.findIndex(e => e.val === val);
+    if (GAME_LEVELS > PRE_ENTITIES.length) {
+      throw new Error('Game levels must be either smaller than or equal with PRE_ENTITIES.length');
+    }
+
+    const index = PRE_ENTITIES.findIndex(e => e.val === val);
+    return index >= 0 ? index : GAME_LEVELS; 
   }
 }
 
