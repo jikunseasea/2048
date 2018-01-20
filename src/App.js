@@ -166,6 +166,7 @@ class App extends Component {
   }
 
   handleTouchStart(e) {
+    e.preventDefault;
     const startX = e.touches[0].pageX;
     const startY = e.touches[0].pageY;
     Object.assign(this.touchStartCoor, { startX, startY });
