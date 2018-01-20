@@ -1,3 +1,7 @@
+## 2048
+
+A game of 2048, created by react and rxjs
+
 ## TODO
 
 - 动画的解决方案实现不理想，没有使用 react-move 等 lib，而是沿用了 jquery，这是一种 hack， 需要重构，由此带来的另外一个 trick 是 Grid 里面的 Key 使用的是 随机数，这是 react 不提倡的
