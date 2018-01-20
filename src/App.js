@@ -12,6 +12,10 @@ import {
   canMove
 } from './util';
 
+import {
+  TOUCH_FACTOR
+} from './constant';
+
 import service from './service';
 
 injectGlobal`
@@ -172,7 +176,7 @@ class App extends Component {
     const [ deltaX, deltaY ] = [endX - startX, endY - startY];
 
     // 避免抖动（click）
-    const threshold = this.state.browserWidth * 0.3;
+    const threshold = this.state.browserWidth * TOUCH_FACTOR;
     const [abDeltaX, abDeltaY] = [Math.abs(deltaX), Math.abs(deltaY)];
     if (abDeltaX < threshold && abDeltaY < threshold) {
       return;

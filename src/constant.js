@@ -42,3 +42,5 @@ export const STORAGE_NAME = 'jkest-2048';
 
 
 export const GAME_LEVELS = 12;
+
+export const TOUCH_FACTOR = 0.05;
