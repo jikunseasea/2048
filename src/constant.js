@@ -18,7 +18,7 @@ export const SCREEN_SIZE = '600px';
 
 export const INITIAL_CELL = 2;
 
-export const SHOW_UP_DURATION =50;
+export const SHOW_UP_DURATION = 150;
 
 export const MOVE_DURATION = 50;
 export const MOVE_THROTTLE_TIME = 150;
