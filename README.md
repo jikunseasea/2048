@@ -1,6 +1,8 @@
 ## 2048
 
-A game of 2048, created by react and rxjs
+A game of 2048, created by react and rxjs.
+
+Mobile device is supported.
 
 ## TODO
 
